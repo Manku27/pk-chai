@@ -1,0 +1,333 @@
+/**
+ * LoginPopup Component Styles
+ * Modal dialog for authentication
+ * Neo-brutalist design matching app aesthetic
+ */
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.modalContent {
+  background: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  padding: 2rem;
+  box-shadow: 8px 8px 0px var(--pk-ink);
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--pk-ink);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.formRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--pk-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input {
+  padding: 0.75rem 1rem;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 1rem;
+  transition: box-shadow 0.2s;
+  font-family: inherit;
+  background: white;
+  color: var(--pk-ink);
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: var(--shadow-hard);
+}
+
+.input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input::placeholder {
+  color: #999;
+}
+
+.error {
+  padding: 0.875rem 1rem;
+  background-color: #fee;
+  border: 3px solid var(--alert-red);
+  border-radius: var(--radius-std);
+  color: var(--alert-red);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: var(--shadow-hard);
+}
+
+.submitButton {
+  padding: 0.875rem 1.5rem;
+  background-color: var(--clay-red);
+  color: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+  font-family: inherit;
+  text-transform: uppercase;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--pk-ink);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-hard);
+}
+
+.submitButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
+}
+
+.submitButton:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+}
+
+.skipButton {
+  padding: 0.875rem 1.5rem;
+  background-color: white;
+  color: var(--pk-ink);
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+.skipButton:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--pk-ink);
+}
+
+.skipButton:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-hard);
+}
+
+.skipButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.skipButton:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.buttonGroup .skipButton {
+  flex: 1;
+}
+
+.buttonGroup .submitButton {
+  flex: 2;
+}
+
+.switchMode {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: var(--clay-red);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.linkButton:hover:not(:disabled) {
+  color: var(--pk-ink);
+}
+
+.linkButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.linkButton:focus-visible {
+  outline: 2px solid var(--pk-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .modal {
+    width: 95%;
+  }
+
+  .modalContent {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+  }
+
+  .buttonGroup .skipButton,
+  .buttonGroup .submitButton {
+    flex: 1;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .modalContent {
+    padding: 2rem;
+  }
+}
+
+/* Accessibility: High contrast mode support */
+@media (prefers-contrast: high) {
+  .input,
+  .submitButton,
+  .skipButton,
+  .error,
+  .modalContent {
+    border-width: 4px;
+  }
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .modal {
+    animation: none;
+  }
+
+  .submitButton:hover:not(:disabled),
+  .skipButton:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .submitButton:active:not(:disabled),
+  .skipButton:active:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+    border-top-color: transparent;
+  }
+}
+
+/* Focus visible styles for keyboard navigation */
+.input:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+}

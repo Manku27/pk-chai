@@ -1,0 +1,140 @@
+/**
+ * SearchBar Component Styles
+ * Neo-brutalist design with hard shadows and defined borders
+ * Mobile-first responsive design
+ */
+
+/* Mobile-first base styles */
+.searchBar {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--pk-cream);
+  border-bottom: 3px solid var(--pk-ink);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Touch-optimized input - minimum 44px height */
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 50px 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pk-ink);
+  background-color: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  box-shadow: var(--shadow-hard);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  line-height: 1.4;
+}
+
+.input::placeholder {
+  color: var(--border-color);
+  opacity: 1;
+}
+
+.input:focus {
+  outline: 3px solid var(--clay-red);
+  outline-offset: 2px;
+}
+
+/* Clear button - positioned absolutely inside input */
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 32px;
+  min-height: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background-color: var(--pk-gold);
+  color: var(--pk-ink);
+  border: 2px solid var(--pk-ink);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--pk-ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.clearButton:active {
+  transform: translateY(-50%) translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--pk-ink);
+}
+
+.clearButton:focus-visible {
+  outline: 3px solid var(--clay-red);
+  outline-offset: 2px;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .searchBar {
+    padding: 16px 20px;
+  }
+
+  .input {
+    padding: 11px 54px 11px 15px;
+    font-size: 15px;
+  }
+
+  .clearButton {
+    right: 10px;
+    min-width: 36px;
+    min-height: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .searchBar {
+    padding: 20px 24px;
+  }
+
+  .input {
+    padding: 12px 56px 12px 16px;
+    font-size: 16px;
+  }
+
+  .clearButton {
+    right: 12px;
+    min-width: 38px;
+    min-height: 38px;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+}
+
+/* Desktop - enable hover effects */
+@media (min-width: 1024px) and (hover: hover) {
+  .input:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0px var(--pk-ink);
+  }
+
+  .clearButton:hover {
+    transform: translateY(-50%) translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pk-ink);
+  }
+}

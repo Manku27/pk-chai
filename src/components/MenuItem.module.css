@@ -1,0 +1,161 @@
+/**
+ * MenuItem Component Styles
+ * Neo-brutalist design with hard shadows and defined borders
+ * Mobile-first responsive design
+ */
+
+/* Mobile-first base styles */
+.menuItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 12px;
+  background-color: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  box-shadow: var(--shadow-hard);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  gap: 12px;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0; /* Prevent flex item overflow */
+}
+
+.itemName {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pk-ink);
+  line-height: 1.3;
+}
+
+.itemPrice {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--clay-red);
+}
+
+/* Mobile touch-optimized button - minimum 44x44px */
+.addButton {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 18px;
+  background-color: var(--pk-gold);
+  color: var(--pk-ink);
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--pk-ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--pk-ink);
+}
+
+.addButton:focus-visible {
+  outline: 3px solid var(--clay-red);
+  outline-offset: 2px;
+}
+
+/* Tablet and up - enable hover effects */
+@media (min-width: 768px) {
+  .menuItem {
+    padding: 16px;
+  }
+
+  .itemName {
+    font-size: 16px;
+  }
+
+  .itemPrice {
+    font-size: 18px;
+  }
+
+  .addButton {
+    padding: 10px 20px;
+  }
+}
+
+/* Quantity controls container */
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  padding: 4px;
+  box-shadow: 3px 3px 0px var(--pk-ink);
+}
+
+/* Quantity buttons (+ and -) */
+.quantityButton {
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pk-gold);
+  color: var(--pk-ink);
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-weight: 700;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.quantityButton:active {
+  transform: scale(0.95);
+  background-color: var(--clay-red);
+}
+
+.quantityButton:focus-visible {
+  outline: 3px solid var(--clay-red);
+  outline-offset: 2px;
+}
+
+/* Quantity display */
+.quantity {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--pk-ink);
+  user-select: none;
+}
+
+/* Desktop - enhanced hover effects */
+@media (min-width: 1024px) and (hover: hover) {
+  .menuItem:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--pk-ink);
+  }
+
+  .addButton:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px var(--pk-ink);
+  }
+
+  .quantityButton:hover {
+    background-color: var(--clay-red);
+  }
+}

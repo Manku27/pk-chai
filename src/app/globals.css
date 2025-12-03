@@ -1,42 +1,69 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Extracted from Logo */
+  --pk-gold: #F5B041;       /* The Background Yellow */
+  --pk-ink: #2E1B0F;        /* The Dark Brown Text */
+  --pk-foam: #F9F3E3;       /* Off-white/Cream Background */
+  --pk-cream: #FFF8E7;      /* Light cream for backgrounds */
+  
+  /* Functional Colors */
+  --clay-red: #D35400;      /* Primary Button / Call to Action */
+  --leaf-green: #27AE60;    /* Success / In Stock */
+  --alert-red: #C0392B;     /* Error / Reject / Locked Slot */
+  --border-color: #D6C2A8;  /* Subtle borders */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Spacing & Radius */
+  --radius-std: 8px;        /* Slightly rounded, not pill-shaped */
+  --shadow-hard: 4px 4px 0px var(--pk-ink); /* Neo-brutalist hard shadow */
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+html {
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  width: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+body {
+  background-color: var(--pk-foam);
+  color: var(--pk-ink);
+  font-family: 'Open Sans', sans-serif; /* Clean readability */
+  font-size: 16px;
+  line-height: 1.5;
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  width: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure images and media are responsive */
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Remove default button styles */
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Improve touch target accessibility */
+@media (pointer: coarse) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
   }
 }

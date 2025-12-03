@@ -1,141 +1,152 @@
+/**
+ * Main Menu Page Styles
+ * Neo-brutalist design with hard shadows and defined borders
+ * Mobile-first responsive design
+ */
+
+/* Mobile-first base styles */
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  background-color: var(--pk-foam);
+  position: relative;
 }
 
 .main {
-  display: flex;
-  min-height: 100vh;
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 220px; /* Space for bottom sheet cart on mobile */
   width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
-.intro {
+.header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--pk-ink);
+}
+
+.headerTop {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
-}
-
-.ctas a {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+  gap: 1rem;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+.logo {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-std);
+  border: 3px solid var(--pk-ink);
+  box-shadow: var(--shadow-hard);
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.headerText {
+  flex: 1;
+  min-width: 0;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--pk-ink);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: -0.3px;
+  line-height: 1.1;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--pk-ink);
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.4;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Small mobile adjustments */
+@media (min-width: 480px) {
   .logo {
-    filter: invert();
+    width: 55px;
+    height: 55px;
   }
 
+  .title {
+    font-size: 2rem;
+    letter-spacing: -0.4px;
+  }
+
+  .subtitle {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Tablet layout */
+@media (min-width: 768px) {
+  .main {
+    padding: 1.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .headerTop {
+    gap: 1.25rem;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop layout with fixed sidebar */
+@media (min-width: 1024px) {
   .page {
-    --background: #000;
-    --foreground: #000;
+    flex-direction: row;
+  }
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
+  .main {
+    padding: 2rem;
+    padding-right: 420px; /* Space for fixed cart sidebar */
+    padding-bottom: 2rem;
+    max-width: 1400px;
+  }
 
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+  .header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .headerTop {
+    gap: 1.5rem;
+  }
+
+  .logo {
+    width: 70px;
+    height: 70px;
+  }
+
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
   }
 }

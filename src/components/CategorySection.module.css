@@ -1,0 +1,67 @@
+/**
+ * CategorySection Component Styles
+ * Neo-brutalist design with visual separation between categories
+ * Mobile-first responsive design
+ */
+
+/* Mobile-first base styles */
+.categorySection {
+  margin-bottom: 32px;
+}
+
+.categoryHeader {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--pk-ink);
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--pk-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+/* Mobile: single column layout */
+.itemsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Tablet: two columns */
+@media (min-width: 768px) {
+  .categorySection {
+    margin-bottom: 36px;
+  }
+
+  .categoryHeader {
+    font-size: 26px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 4px solid var(--pk-ink);
+    letter-spacing: 0.4px;
+  }
+
+  .itemsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Desktop: multi-column with auto-fill */
+@media (min-width: 1024px) {
+  .categorySection {
+    margin-bottom: 40px;
+  }
+
+  .categoryHeader {
+    font-size: 28px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .itemsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+}

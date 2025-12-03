@@ -1,0 +1,154 @@
+/**
+ * ProfileBadge Component Styles
+ * Circular badge with user initials in top-right corner
+ * Neo-brutalist design with hard shadows
+ */
+
+.badge {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid var(--pk-ink);
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 50;
+  background-color: var(--pk-primary);
+  padding: 0;
+}
+
+/* Inline variant for use in headers/navbars */
+.badge.inline {
+  position: static;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  box-shadow: 2px 2px 0px var(--pk-ink);
+}
+
+.badge.inline:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--pk-ink);
+}
+
+.badge.inline:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--pk-ink);
+}
+
+.badge.inline .initials {
+  font-size: 0.875rem;
+}
+
+.badge:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--pk-ink);
+}
+
+.badge:active {
+  transform: translate(0, 0);
+  box-shadow: 3px 3px 0 var(--pk-ink);
+}
+
+.badge:focus-visible {
+  outline: 3px solid var(--pk-primary);
+  outline-offset: 2px;
+}
+
+.initials {
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) {
+  .badge {
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 52px;
+    height: 52px;
+  }
+
+  .badge.inline {
+    width: 38px;
+    height: 38px;
+  }
+
+  .initials {
+    font-size: 1.125rem;
+  }
+
+  .badge.inline .initials {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Desktop adjustments */
+@media (min-width: 1024px) {
+  .badge {
+    top: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+  }
+
+  .badge.inline {
+    width: 40px;
+    height: 40px;
+  }
+
+  .initials {
+    font-size: 1.25rem;
+  }
+
+  .badge.inline .initials {
+    font-size: 1rem;
+  }
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .badge {
+    transition: none;
+  }
+
+  .badge:hover {
+    transform: none;
+    box-shadow: var(--shadow-hard);
+  }
+
+  .badge:active {
+    transform: none;
+  }
+}
+
+/* Accessibility: High contrast mode support */
+@media (prefers-contrast: high) {
+  .badge {
+    border-width: 4px;
+  }
+}
+
+/* Ensure badge doesn't overlap with other UI elements on small screens */
+@media (max-width: 480px) {
+  .badge {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 44px;
+    height: 44px;
+  }
+
+  .initials {
+    font-size: 0.875rem;
+  }
+}

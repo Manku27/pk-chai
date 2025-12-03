@@ -1,0 +1,146 @@
+/**
+ * CartItem Component Styles
+ * Neo-brutalist design with hard shadows and defined borders
+ * Mobile-first responsive design with touch-optimized controls
+ */
+
+/* Mobile-first base styles */
+.cartItem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background-color: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  box-shadow: var(--shadow-hard);
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.itemName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pk-ink);
+  line-height: 1.3;
+}
+
+.itemPrice {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pk-ink);
+  opacity: 0.7;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--pk-cream);
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  padding: 4px;
+}
+
+/* Touch-optimized buttons - minimum 44x44px */
+.controlButton {
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pk-gold);
+  color: var(--pk-ink);
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--pk-ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  line-height: 1;
+}
+
+.controlButton:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--pk-ink);
+}
+
+.controlButton:focus-visible {
+  outline: 3px solid var(--clay-red);
+  outline-offset: 2px;
+}
+
+.quantity {
+  min-width: 32px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pk-ink);
+}
+
+.subtotal {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--clay-red);
+  white-space: nowrap;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .cartItem {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .itemName {
+    font-size: 15px;
+  }
+
+  .itemPrice {
+    font-size: 13px;
+  }
+
+  .subtotal {
+    font-size: 18px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .cartItem {
+    padding: 16px;
+  }
+
+  .itemName {
+    font-size: 16px;
+  }
+
+  .itemPrice {
+    font-size: 14px;
+  }
+}
+
+/* Desktop - enable hover effects */
+@media (min-width: 1024px) and (hover: hover) {
+  .controlButton:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pk-ink);
+  }
+}
