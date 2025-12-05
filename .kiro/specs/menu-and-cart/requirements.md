@@ -12,7 +12,7 @@ The Menu and Cart feature enables students to browse available food items, add t
 - **Category**: A grouping of related menu items (e.g., "Chai", "Maggi", "Sandwich")
 - **IndexedDB**: Browser-based persistent storage used for cart data
 - **Hostel Block**: One of four delivery locations (Jaadavpur Main Hostel, New block hostel, KPC boys hostel, KPC girls hostel)
-- **Delivery Slot**: A 30-minute time window between 11:00 AM and 5:00 PM for order delivery
+- **Delivery Slot**: A 30-minute time window between 11:00 PM and 5:00 AM for order delivery
 - **Search Filter**: A text-based filtering mechanism that narrows displayed menu items based on name matching
 - **Environment Variable**: A configuration value set outside the application code that controls system behavior
 
@@ -63,7 +63,7 @@ The Menu and Cart feature enables students to browse available food items, add t
 1. WHEN a user views the cart THEN the system SHALL display a dropdown for selecting the delivery hostel block
 2. WHEN a user is authenticated THEN the system SHALL pre-select their default hostel block in the dropdown
 3. WHEN a user is not authenticated THEN the system SHALL require hostel block selection before checkout
-4. WHEN a user views available slots THEN the system SHALL display time slots from 11:00 AM to 5:00 PM in 30-minute intervals
+4. WHEN a user views available slots THEN the system SHALL display time slots from 11:00 PM to 5:00 AM in 30-minute intervals
 5. WHEN the current time is within 30 minutes of a slot THEN the system SHALL disable that slot for selection
 6. WHEN a user selects a slot THEN the system SHALL validate that the order time is at least 30 minutes before the slot time
 
@@ -165,4 +165,4 @@ The Menu and Cart feature enables students to browse available food items, add t
 1. WHEN the environment variable NEXT_PUBLIC_ENABLE_ALL_SLOTS is set to "true" THEN the system SHALL mark all time slots as available regardless of current time
 2. WHEN the environment variable NEXT_PUBLIC_ENABLE_ALL_SLOTS is not set or set to any other value THEN the system SHALL apply normal slot availability rules (30-minute buffer)
 3. WHEN all slots are enabled via environment variable THEN the system SHALL not display any visual indicator to end users
-4. WHEN generating slots with the environment variable enabled THEN the system SHALL still generate the same 13 slots from 11:00 AM to 5:00 PM
+4. WHEN generating slots with the environment variable enabled THEN the system SHALL still generate the same 13 slots from 11:00 PM to 5:00 AM

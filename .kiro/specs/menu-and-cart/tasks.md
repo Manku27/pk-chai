@@ -77,7 +77,7 @@
 
 
 
-  - Create function to generate slots from 11:00 AM to 5:00 PM (30-min intervals)
+  - Create function to generate slots from 11:00 PM to 5:00 AM (30-min intervals)
   - Implement logic to disable slots within 30 minutes of current time
   - Return array of TimeSlot objects with availability status
   - _Requirements: 4.4, 4.5, 4.6_

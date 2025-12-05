@@ -83,8 +83,8 @@ Double-40rs
 * **Slot Selection & Location:**
     * **Delivery Location:** Pre-filled with the user's "Default Hostel Block" (from profile), but **must be editable** via a dropdown at checkout (e.g., User lives in Block A but is hanging out in Block C).
     * **Slot Logic:**
-        * **Available Slots:** 11:00 AM to 5:00 PM, every 30 minutes (11:00 AM, 11:30 AM, 12:00 PM, ..., 5:00 PM).
-        * User selects a slot (e.g., 11:30 AM).
+        * **Available Slots:** 11:00 PM to 5:00 AM, every 30 minutes (11:00 PM, 11:30 PM, 12:00 AM, ..., 5:00 AM).
+        * User selects a slot (e.g., 11:30 PM).
         * **Constraint:** `Order_Time <= Slot_Time - 30 minutes`.
         * **No Maximum Orders Per Slot:** Unlimited orders can be placed for any slot.
     * **Security (Rate Limiting):**

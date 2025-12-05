@@ -1,13 +1,13 @@
 /**
  * Slot Generator Service
- * Generates available delivery time slots from 11:00 AM to 5:00 PM
+ * Generates available delivery time slots from 11:00 PM to 5:00 AM
  */
 
 import { TimeSlot } from '@/types/menu';
 
 /**
  * Generate available delivery slots for the current day
- * Slots are generated from 11:00 AM to 5:00 PM in 30-minute intervals
+ * Slots are generated from 11:00 PM to 5:00 AM in 30-minute intervals
  * Slots within 30 minutes of current time are marked as unavailable
  * 
  * @param currentTime - The current time to check slot availability against
@@ -24,18 +24,19 @@ export function getAvailableSlots(
   const shouldEnableAllSlots = enableAllSlots ?? 
     (process.env.NEXT_PUBLIC_ENABLE_ALL_SLOTS === 'true');
   
-  // Create a date object for today at 11:00 AM
+  // Create a date object for today at 11:00 PM
   const startTime = new Date(currentTime);
-  startTime.setHours(11, 0, 0, 0);
+  startTime.setHours(23, 0, 0, 0);
   
-  // Create a date object for today at 5:00 PM
+  // Create a date object for tomorrow at 5:00 AM
   const endTime = new Date(currentTime);
-  endTime.setHours(17, 0, 0, 0);
+  endTime.setDate(endTime.getDate() + 1);
+  endTime.setHours(5, 0, 0, 0);
   
   // Calculate the cutoff time (current time + 30 minutes)
   const cutoffTime = new Date(currentTime.getTime() + 30 * 60 * 1000);
   
-  // Generate slots from 11:00 AM to 5:00 PM (30-minute intervals)
+  // Generate slots from 11:00 PM to 5:00 AM (30-minute intervals)
   let slotTime = new Date(startTime);
   
   while (slotTime <= endTime) {
@@ -61,7 +62,7 @@ export function getAvailableSlots(
 }
 
 /**
- * Format a Date object to display format (e.g., "11:00 AM", "2:30 PM")
+ * Format a Date object to display format (e.g., "11:00 PM", "2:30 AM")
  * 
  * @param date - The date to format
  * @returns Formatted time string

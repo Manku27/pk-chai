@@ -188,13 +188,13 @@ interface SlotService {
 
 interface TimeSlot {
   time: string;        // ISO timestamp
-  display: string;     // "11:00 AM", "11:30 AM"
+  display: string;     // "11:00 PM", "11:30 PM"
   isAvailable: boolean;
 }
 ```
 
 **Logic:**
-- Generate slots from 11:00 AM to 5:00 PM (30-minute intervals)
+- Generate slots from 11:00 PM to 5:00 AM (30-minute intervals)
 - Disable slots where `currentTime > slotTime - 30 minutes`
 - Return array of 13 slots total
 - **Environment Override:** If `NEXT_PUBLIC_ENABLE_ALL_SLOTS === "true"`, mark all slots as available regardless of current time
@@ -386,7 +386,7 @@ export const MENU_ITEMS: MenuItem[] = [
 
 ### Property 13: Slot generation produces correct count
 
-*For any* current time, the slot generator should produce exactly 13 time slots from 11:00 AM to 5:00 PM at 30-minute intervals.
+*For any* current time, the slot generator should produce exactly 13 time slots from 11:00 PM to 5:00 AM at 30-minute intervals.
 
 **Validates: Requirements 4.4**
 
@@ -506,7 +506,7 @@ export const MENU_ITEMS: MenuItem[] = [
 
 ### Property 33: Environment override maintains slot count and times
 
-*For any* current time, when NEXT_PUBLIC_ENABLE_ALL_SLOTS is "true", the system should still generate exactly 13 slots from 11:00 AM to 5:00 PM at 30-minute intervals.
+*For any* current time, when NEXT_PUBLIC_ENABLE_ALL_SLOTS is "true", the system should still generate exactly 13 slots from 11:00 PM to 5:00 AM at 30-minute intervals.
 
 **Validates: Requirements 12.4**
 
@@ -672,7 +672,7 @@ function validateCartData(data: unknown): data is CartState {
 
 8. **Property 33: Environment Override Maintains Slot Structure**
    - Generate random current times with env var enabled
-   - Verify 13 slots from 11:00 AM to 5:00 PM at 30-min intervals
+   - Verify 13 slots from 11:00 PM to 5:00 AM at 30-min intervals
    - Tag: `// Feature: menu-and-cart, Property 33: Environment override maintains slot count and times`
 
 ### Integration Testing
