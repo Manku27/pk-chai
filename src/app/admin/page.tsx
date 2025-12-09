@@ -1,264 +1,105 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+/**
+ * Admin Dashboard Page
+ * Integrated admin interface with real-time order feed and analytics
+ * Requirements: 1.3, 2.1, 4.5, 7.4
+ */
+
+import { useState } from 'react';
+import Link from 'next/link';
+import AuthGuard from '@/components/AuthGuard';
+import OrderFeed from '@/components/OrderFeed';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import styles from './page.module.css';
 
-type OrderStatus = 'ACCEPTED' | 'ACKNOWLEDGED' | 'DELIVERED' | 'REJECTED';
-
-interface StatusCount {
-  status: string;
-  count: number;
-}
-
-interface SlotBlockGroup {
-  slotTime: string;
-  targetHostelBlock: string;
-  count: number;
-  totalAmount: number;
-}
-
-interface Order {
-  id: string;
-  userId: string;
-  targetHostelBlock: string;
-  slotTime: string;
-  status: OrderStatus;
-  totalAmount: number;
-  createdAt: string;
-  updatedAt: string;
-}
+type TabType = 'orders' | 'analytics';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders'>('overview');
-  const [totalRevenue, setTotalRevenue] = useState<number>(0);
-  const [dailyRevenue, setDailyRevenue] = useState<number>(0);
-  const [statusCounts, setStatusCounts] = useState<StatusCount[]>([]);
-  const [slotBlockGroups, setSlotBlockGroups] = useState<SlotBlockGroup[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('ACCEPTED');
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
-  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('orders');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
-  // Fetch overview data
-  useEffect(() => {
-    if (activeTab === 'overview') {
-      fetchOverviewData();
-    }
-  }, [activeTab, selectedDate]);
+  /**
+   * Show toast notification
+   * Requirement 7.4: Display error messages to admin
+   */
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
 
-  // Fetch orders by status
-  useEffect(() => {
-    if (activeTab === 'orders') {
-      fetchOrdersByStatus();
-    }
-  }, [activeTab, selectedStatus]);
-
-  const fetchOverviewData = async () => {
-    setLoading(true);
-    try {
-      // Fetch total revenue
-      const totalRevenueRes = await fetch('/api/admin/analytics?type=total-revenue');
-      const totalRevenueData = await totalRevenueRes.json();
-      setTotalRevenue(totalRevenueData.revenue);
-
-      // Fetch daily revenue
-      const dailyRevenueRes = await fetch(
-        `/api/admin/analytics?type=daily-revenue&date=${selectedDate}`
-      );
-      const dailyRevenueData = await dailyRevenueRes.json();
-      setDailyRevenue(dailyRevenueData.revenue);
-
-      // Fetch status counts
-      const statusCountsRes = await fetch('/api/admin/analytics?type=status-counts');
-      const statusCountsData = await statusCountsRes.json();
-      setStatusCounts(statusCountsData.counts);
-
-      // Fetch slot and block groups for selected date
-      const slotBlockRes = await fetch(
-        `/api/admin/analytics?type=slot-block-groups&date=${selectedDate}`
-      );
-      const slotBlockData = await slotBlockRes.json();
-      setSlotBlockGroups(slotBlockData.groups);
-    } catch (error) {
-      console.error('Failed to fetch overview data:', error);
-    } finally {
-      setLoading(false);
-    }
+    // Auto-hide toast after 5 seconds
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
   };
 
-  const fetchOrdersByStatus = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/orders?status=${selectedStatus}`);
-      const data = await res.json();
-      setOrders(data.orders);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return `₹${amount}`;
-  };
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-IN', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    });
+  /**
+   * Close toast manually
+   */
+  const closeToast = () => {
+    setToastMessage(null);
   };
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>Admin Dashboard</h1>
-        <div className={styles.tabs}>
-          <button
-            className={activeTab === 'overview' ? styles.activeTab : ''}
-            onClick={() => setActiveTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            className={activeTab === 'orders' ? styles.activeTab : ''}
-            onClick={() => setActiveTab('orders')}
-          >
-            Orders
-          </button>
+    <AuthGuard>
+      <div className={styles.container}>
+        {/* Header with tab navigation */}
+        <header className={styles.header}>
+          <h1 className={styles.title}>Admin Dashboard</h1>
+          <div className={styles.headerActions}>
+            <div className={styles.tabs}>
+              <button
+                className={`${styles.tab} ${activeTab === 'orders' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('orders')}
+              >
+                📦 Order Feed
+              </button>
+              <button
+                className={`${styles.tab} ${activeTab === 'analytics' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('analytics')}
+              >
+                📊 Analytics
+              </button>
+            </div>
+            <Link href="/admin/all-orders" className={styles.allOrdersLink}>
+              📋 View All Orders
+            </Link>
+          </div>
+        </header>
+
+        {/* Toast Notification - Requirement 7.4 */}
+        {toastMessage && (
+          <div className={`${styles.toast} ${styles[toastType]}`}>
+            <div className={styles.toastContent}>
+              <span className={styles.toastIcon}>
+                {toastType === 'success' ? '✓' : '⚠'}
+              </span>
+              <span className={styles.toastMessage}>{toastMessage}</span>
+            </div>
+            <button className={styles.toastClose} onClick={closeToast}>
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Tab Content */}
+        <div className={styles.content}>
+          {/* Order Feed Tab - Requirements 2.1, 4.5 */}
+          {activeTab === 'orders' && (
+            <div className={styles.tabPanel}>
+              <OrderFeed pollingInterval={15000} />
+            </div>
+          )}
+
+          {/* Analytics Tab - Requirement 1.3 */}
+          {activeTab === 'analytics' && (
+            <div className={styles.tabPanel}>
+              <AnalyticsDashboard />
+            </div>
+          )}
         </div>
-      </header>
-
-      {loading && <div className={styles.loading}>Loading...</div>}
-
-      {activeTab === 'overview' && (
-        <div className={styles.overview}>
-          <div className={styles.dateSelector}>
-            <label htmlFor="date">Select Date:</label>
-            <input
-              type="date"
-              id="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
-          </div>
-
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <h3>Total Revenue</h3>
-              <p className={styles.statValue}>{formatCurrency(totalRevenue)}</p>
-            </div>
-            <div className={styles.statCard}>
-              <h3>Daily Revenue ({selectedDate})</h3>
-              <p className={styles.statValue}>{formatCurrency(dailyRevenue)}</p>
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h2>Order Status Counts</h2>
-            <div className={styles.statusGrid}>
-              {statusCounts.map((item) => (
-                <div key={item.status} className={styles.statusCard}>
-                  <span className={styles.statusLabel}>{item.status}</span>
-                  <span className={styles.statusCount}>{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h2>Orders by Slot & Block ({selectedDate})</h2>
-            <div className={styles.tableContainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Slot Time</th>
-                    <th>Hostel Block</th>
-                    <th>Order Count</th>
-                    <th>Total Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {slotBlockGroups.map((group, index) => (
-                    <tr key={index}>
-                      <td>{formatDateTime(group.slotTime)}</td>
-                      <td>{group.targetHostelBlock}</td>
-                      <td>{group.count}</td>
-                      <td>{formatCurrency(group.totalAmount)}</td>
-                    </tr>
-                  ))}
-                  {slotBlockGroups.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className={styles.emptyState}>
-                        No orders for selected date
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'orders' && (
-        <div className={styles.ordersView}>
-          <div className={styles.statusFilter}>
-            <label htmlFor="status">Filter by Status:</label>
-            <select
-              id="status"
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
-            >
-              <option value="ACCEPTED">ACCEPTED</option>
-              <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
-              <option value="DELIVERED">DELIVERED</option>
-              <option value="REJECTED">REJECTED</option>
-            </select>
-          </div>
-
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Hostel Block</th>
-                  <th>Slot Time</th>
-                  <th>Total Amount</th>
-                  <th>Status</th>
-                  <th>Created At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>{order.id.substring(0, 8)}...</td>
-                    <td>{order.targetHostelBlock}</td>
-                    <td>{formatDateTime(order.slotTime)}</td>
-                    <td>{formatCurrency(order.totalAmount)}</td>
-                    <td>
-                      <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()]}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td>{formatDateTime(order.createdAt)}</td>
-                  </tr>
-                ))}
-                {orders.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className={styles.emptyState}>
-                      No orders with status {selectedStatus}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

@@ -1,0 +1,476 @@
+/**
+ * All Orders Page Styles
+ * Requirements: 5.1, 5.5
+ * Card-based layout with responsive design and accessibility features
+ */
+
+/* Main Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: var(--pk-foam);
+}
+
+/* Header Section - Requirement 2.2 */
+.header {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-std);
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 3px solid var(--pk-ink);
+}
+
+.backButton {
+  background: transparent;
+  border: none;
+  color: var(--pk-ink);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 0.75rem;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backButton:hover {
+  opacity: 0.7;
+}
+
+.backButton:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+  border-radius: var(--radius-std);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--pk-ink);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+/* Loading State - Requirement 4.1 */
+.loadingContainer {
+  text-align: center;
+  padding: 4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loadingContainer p {
+  color: var(--pk-ink);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--clay-red);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State - Requirement 4.3 */
+.errorContainer {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: white;
+  border: 3px solid var(--alert-red);
+  border-radius: var(--radius-std);
+  box-shadow: var(--shadow-hard);
+}
+
+.errorMessage {
+  color: var(--alert-red);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton {
+  padding: 0.875rem 1.5rem;
+  background-color: var(--pk-gold);
+  color: var(--pk-ink);
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+
+.retryButton:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--pk-ink);
+}
+
+.retryButton:active {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-hard);
+}
+
+.retryButton:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+}
+
+/* Empty State - Requirement 1.5 */
+.emptyContainer {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  box-shadow: var(--shadow-hard);
+}
+
+.emptyMessage {
+  color: var(--pk-ink);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.backToDashboardButton {
+  padding: 0.875rem 1.5rem;
+  background-color: var(--clay-red);
+  color: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+
+.backToDashboardButton:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--pk-ink);
+}
+
+.backToDashboardButton:active {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-hard);
+}
+
+.backToDashboardButton:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+}
+
+/* Orders Container - Requirement 5.1 */
+.ordersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Order Card - Requirement 5.1 (Card-based layout) */
+.orderCard {
+  background: white;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-hard);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.orderCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--pk-ink);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Order Header */
+.orderHeader {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.orderMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.orderId {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--pk-ink);
+  text-transform: uppercase;
+}
+
+.orderDate {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--pk-ink);
+  opacity: 0.8;
+}
+
+/* Section Styles */
+.customerSection,
+.deliverySection,
+.itemsSection {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--pk-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+
+/* Customer and Delivery Details */
+.customerDetails,
+.deliveryDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detailRow {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.detailLabel {
+  font-weight: 600;
+  color: var(--pk-ink);
+  min-width: 60px;
+}
+
+.detailValue {
+  color: var(--pk-ink);
+}
+
+/* Items List - Requirement 5.4 */
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.itemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  gap: 1rem;
+}
+
+.itemName {
+  color: var(--pk-ink);
+  font-size: 0.9375rem;
+  flex: 1;
+}
+
+.itemPrice {
+  font-weight: 600;
+  color: var(--pk-ink);
+  font-size: 0.9375rem;
+}
+
+/* Total Section - Requirement 5.2 */
+.totalSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-top: 3px solid var(--pk-ink);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.totalLabel {
+  font-weight: 700;
+  color: var(--pk-ink);
+  text-transform: uppercase;
+  font-size: 1.125rem;
+}
+
+.totalAmount {
+  font-weight: 700;
+  color: var(--clay-red);
+  font-size: 1.25rem;
+}
+
+/* Status Section */
+.statusSection {
+  margin-top: 0.5rem;
+}
+
+/* Responsive Design - Requirement 5.5 (Mobile/Tablet) */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    padding: 1rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .orderCard {
+    padding: 1rem;
+  }
+
+  .orderId {
+    font-size: 1rem;
+  }
+
+  .orderDate {
+    font-size: 0.875rem;
+  }
+
+  .totalLabel {
+    font-size: 1rem;
+  }
+
+  .totalAmount {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .header {
+    padding: 1rem;
+    border-radius: 6px;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .orderCard {
+    padding: 0.875rem;
+    border-radius: 6px;
+  }
+
+  .orderMeta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .detailLabel {
+    min-width: auto;
+  }
+
+  .itemRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .totalSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* Accessibility - Requirement 5.5 */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .orderCard,
+  .header,
+  .errorContainer,
+  .emptyContainer {
+    border-width: 4px;
+  }
+
+  .retryButton,
+  .backToDashboardButton {
+    border-width: 4px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-top-color: transparent;
+  }
+
+  .orderCard {
+    animation: none;
+  }
+
+  .orderCard:hover,
+  .retryButton:hover,
+  .backToDashboardButton:hover {
+    transform: none;
+  }
+
+  .retryButton:active,
+  .backToDashboardButton:active {
+    transform: none;
+  }
+}
+
+/* Focus visible styles for keyboard navigation */
+.backButton:focus-visible,
+.retryButton:focus-visible,
+.backToDashboardButton:focus-visible {
+  outline: 3px solid var(--pk-gold);
+  outline-offset: 2px;
+}
+
+/* Ensure sufficient color contrast - WCAG AA compliant */
+/* All text colors use var(--pk-ink) which has sufficient contrast against white backgrounds */
+/* Error text uses var(--alert-red) which meets WCAG AA standards */
+/* Interactive elements have clear focus states with high contrast outlines */

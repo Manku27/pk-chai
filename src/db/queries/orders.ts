@@ -1,6 +1,6 @@
 import { eq, and, gte, desc, count } from 'drizzle-orm';
 import { db } from '../index';
-import { orders, orderItems } from '../schema';
+import { orders, orderItems, users } from '../schema';
 
 export type NewOrder = typeof orders.$inferInsert;
 export type Order = typeof orders.$inferSelect;
@@ -186,4 +186,76 @@ export async function getRecentOrdersByUser(userId: string): Promise<Order[]> {
     .from(orders)
     .where(and(eq(orders.userId, userId), gte(orders.createdAt, twentyFourHoursAgo)))
     .orderBy(desc(orders.createdAt));
+}
+
+/**
+ * Get orders with filters for admin dashboard
+ * Includes order items with menu item details and user information
+ */
+export async function getOrdersWithFilters(filters: {
+  status?: 'ACCEPTED' | 'ACKNOWLEDGED' | 'DELIVERED' | 'REJECTED';
+  slotTime?: Date;
+  hostelBlock?: string;
+}): Promise<Array<Order & {
+  items: Array<OrderItem & { menuItem: { name: string; category: string } }>;
+  user: { phone: string; name: string };
+}>> {
+  // Build where conditions
+  const conditions = [];
+  if (filters.status) {
+    conditions.push(eq(orders.status, filters.status));
+  }
+  if (filters.slotTime) {
+    conditions.push(eq(orders.slotTime, filters.slotTime));
+  }
+  if (filters.hostelBlock) {
+    conditions.push(eq(orders.targetHostelBlock, filters.hostelBlock));
+  }
+
+  // Fetch orders with filters
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const filteredOrders = await db
+    .select()
+    .from(orders)
+    .where(whereClause)
+    .orderBy(desc(orders.createdAt));
+
+  // Fetch related data for each order
+  const ordersWithDetails = await Promise.all(
+    filteredOrders.map(async (order) => {
+      // Fetch order items with menu item details
+      const items = await db.query.orderItems.findMany({
+        where: eq(orderItems.orderId, order.id),
+        with: {
+          menuItem: {
+            columns: {
+              name: true,
+              category: true,
+            },
+          },
+        },
+      });
+
+      // Fetch user details
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, order.userId),
+        columns: {
+          phone: true,
+          name: true,
+        },
+      });
+
+      // Flatten the structure - spread order fields at top level
+      return {
+        ...order,
+        items: items.map(item => ({
+          ...item,
+          menuItem: item.menuItem,
+        })),
+        user: user || { phone: '', name: '' },
+      };
+    })
+  );
+
+  return ordersWithDetails;
 }

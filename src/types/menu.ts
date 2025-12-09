@@ -56,4 +56,5 @@ export interface TimeSlot {
   time: string;        // ISO timestamp
   display: string;     // "11:00 AM", "11:30 AM"
   isAvailable: boolean;
+  isPast?: boolean;    // Whether the slot is in the past relative to current time
 }

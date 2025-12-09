@@ -1,0 +1,230 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  position: relative;
+}
+
+/* Current status display */
+.currentStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.statusLabel {
+  font-weight: 500;
+  color: #666;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Status badge colors */
+.statusBadge.accepted {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.statusBadge.acknowledged {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.statusBadge.delivered {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.statusBadge.rejected {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+/* Terminal status (no actions available) */
+.terminalStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+}
+
+.terminalText {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.actionButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Button variants */
+.actionButton.acknowledge {
+  background-color: #ff9800;
+  color: white;
+}
+
+.actionButton.acknowledge:hover:not(:disabled) {
+  background-color: #f57c00;
+}
+
+.actionButton.deliver {
+  background-color: #4caf50;
+  color: white;
+}
+
+.actionButton.deliver:hover:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.actionButton.reject {
+  background-color: #f44336;
+  color: white;
+}
+
+.actionButton.reject:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
+/* Loading spinner */
+.loadingSpinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success message */
+.successMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 6px;
+  color: #2e7d32;
+  font-size: 13px;
+  animation: slideIn 0.2s ease;
+}
+
+.successIcon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Error message */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 6px;
+  color: #c62828;
+  font-size: 13px;
+  animation: slideIn 0.2s ease;
+}
+
+.errorIcon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Loading overlay */
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.loadingText {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .actionButton {
+    width: 100%;
+    min-width: unset;
+  }
+}
