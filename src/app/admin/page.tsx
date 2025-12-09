@@ -406,9 +406,12 @@ export default function AdminDashboard() {
                                               {formatCurrency(order.totalAmount)}
                                             </span>
                                           </span>
-                                          <span className={styles.customerPhone}>
+                                          <a 
+                                            href={`tel:${order.userPhone}`} 
+                                            className={styles.customerPhone}
+                                          >
                                             {order.userPhone}
-                                          </span>
+                                          </a>
                                         </div>
                                         <div className={styles.orderStatusBadgeContainer}>
                                           <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()]}`}>

@@ -736,6 +736,14 @@
   letter-spacing: 0.3px;
   width: 100%;
   opacity: 0.8;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s ease, text-decoration 0.15s ease;
+}
+
+.customerPhone:hover {
+  text-decoration: underline;
+  opacity: 1;
 }
 
 .orderAmount {

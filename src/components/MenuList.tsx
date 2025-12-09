@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { menuService } from '@/services/menu';
 import { CategorySection } from './CategorySection';
+import { ContactSection } from './ContactSection';
 import SearchBar from './SearchBar';
 import styles from './MenuList.module.css';
 
@@ -33,6 +34,7 @@ export function MenuList() {
       {Array.from(itemsByCategory.entries()).map(([category, items]) => (
         <CategorySection key={category} category={category} items={items} />
       ))}
+      <ContactSection />
     </div>
   );
 }

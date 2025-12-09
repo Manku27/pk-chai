@@ -1,0 +1,123 @@
+/**
+ * ContactSection Component Styles
+ * Neo-brutalist design matching existing component patterns
+ * Mobile-first responsive design
+ */
+
+/* Mobile-first base styles */
+.contactSection {
+    margin-top: 48px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background-color: white;
+    border: 3px solid var(--pk-ink);
+    border-radius: var(--radius-std);
+    box-shadow: var(--shadow-hard);
+}
+
+.heading {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--pk-ink);
+    margin: 0 0 20px 0;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.contactLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.phoneLink,
+.instagramLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    color: var(--pk-ink);
+    background-color: var(--pk-foam);
+    border: 3px solid var(--pk-ink);
+    border-radius: var(--radius-std);
+    box-shadow: 3px 3px 0px var(--pk-ink);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer;
+}
+
+.instagramIcon {
+    width: 28px;
+    height: 28px;
+}
+
+.phoneLink:hover,
+.instagramLink:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px var(--pk-ink);
+}
+
+.phoneLink:active,
+.instagramLink:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px var(--pk-ink);
+}
+
+/* Focus states for accessibility */
+.phoneLink:focus-visible,
+.instagramLink:focus-visible {
+    outline: 3px solid var(--clay-red);
+    outline-offset: 2px;
+}
+
+/* Tablet: side-by-side layout */
+@media (min-width: 768px) {
+    .contactSection {
+        padding: 28px;
+        margin-top: 56px;
+    }
+
+    .heading {
+        font-size: 26px;
+        margin-bottom: 24px;
+    }
+
+    .contactLinks {
+        flex-direction: row;
+        gap: 16px;
+    }
+
+    .phoneLink,
+    .instagramLink {
+        flex: 1;
+        padding: 16px 24px;
+        font-size: 17px;
+    }
+}
+
+/* Desktop: larger spacing and sizing */
+@media (min-width: 1024px) {
+    .contactSection {
+        padding: 32px;
+        margin-top: 64px;
+    }
+
+    .heading {
+        font-size: 28px;
+        margin-bottom: 28px;
+    }
+
+    .contactLinks {
+        gap: 20px;
+    }
+
+    .phoneLink,
+    .instagramLink {
+        padding: 18px 28px;
+        font-size: 18px;
+    }
+}
