@@ -97,3 +97,33 @@
     box-shadow: 5px 5px 0px var(--pk-ink);
   }
 }
+
+/* Error states */
+.selectError {
+  border-color: var(--clay-red);
+  box-shadow: 4px 4px 0px var(--clay-red);
+}
+
+.selectError:active {
+  box-shadow: 3px 3px 0px var(--clay-red);
+}
+
+@media (min-width: 1024px) and (hover: hover) {
+  .selectError:hover {
+    box-shadow: 5px 5px 0px var(--clay-red);
+  }
+}
+
+.errorMessage {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--clay-red);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .errorMessage {
+    font-size: 13px;
+  }
+}

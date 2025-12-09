@@ -32,10 +32,6 @@ export function OrderSuccessToast({ orderId, onClose }: OrderSuccessToastProps) 
         <p className={styles.message}>
           Your order has been confirmed and will be delivered soon.
         </p>
-        <div className={styles.orderId}>
-          <span className={styles.label}>Order ID:</span>
-          <span className={styles.id}>{orderId}</span>
-        </div>
         <button className={styles.closeButton} onClick={onClose}>
           Got it!
         </button>

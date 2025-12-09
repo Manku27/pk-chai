@@ -1,4 +1,4 @@
-import { eq, and, gte, desc, count } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
 import { db } from '../index';
 import { orders, orderItems } from '../schema';
 
@@ -22,7 +22,7 @@ export async function createOrder(
     ...item,
     orderId: order.id,
   }));
-  
+
   const insertedItems = await db.insert(orderItems).values(orderItemsData).returning();
 
   return { order, items: insertedItems };
@@ -36,7 +36,7 @@ export async function getOrderById(orderId: string): Promise<{
   items: OrderItem[];
 }> {
   const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-  
+
   if (!order) {
     return { order: undefined, items: [] };
   }
@@ -77,7 +77,7 @@ export async function getOrdersWithItemsByUserId(userId: string): Promise<Array<
         .select()
         .from(orderItems)
         .where(eq(orderItems.orderId, order.id));
-      
+
       return { order, items };
     })
   );
@@ -121,7 +121,7 @@ export async function getOrdersWithItemsByUserIdPaginated(
         .select()
         .from(orderItems)
         .where(eq(orderItems.orderId, order.id));
-      
+
       return { order, items };
     })
   );
@@ -171,7 +171,7 @@ export async function countOrdersByUserSince(userId: string, since: Date): Promi
     .select()
     .from(orders)
     .where(and(eq(orders.userId, userId), gte(orders.createdAt, since)));
-  
+
   return result.length;
 }
 
@@ -180,10 +180,31 @@ export async function countOrdersByUserSince(userId: string, since: Date): Promi
  */
 export async function getRecentOrdersByUser(userId: string): Promise<Order[]> {
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  
+
   return db
     .select()
     .from(orders)
     .where(and(eq(orders.userId, userId), gte(orders.createdAt, twentyFourHoursAgo)))
+    .orderBy(desc(orders.createdAt));
+}
+
+/**
+ * Get orders by status for a working day
+ */
+export async function getOrdersByStatusForWorkingDay(
+  status: 'ACCEPTED' | 'ACKNOWLEDGED' | 'DELIVERED' | 'REJECTED',
+  workingDayStart: Date,
+  workingDayEnd: Date
+): Promise<Order[]> {
+  return db
+    .select()
+    .from(orders)
+    .where(
+      and(
+        eq(orders.status, status),
+        gte(orders.slotTime, workingDayStart),
+        lte(orders.slotTime, workingDayEnd)
+      )
+    )
     .orderBy(desc(orders.createdAt));
 }

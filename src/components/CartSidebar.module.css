@@ -200,6 +200,32 @@
   color: var(--clay-red);
 }
 
+/* Minimum Order Warning */
+.minimumOrderWarning {
+  padding: 10px 14px;
+  background-color: var(--pk-gold);
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pk-ink);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Checkout Error */
+.checkoutError {
+  padding: 10px 14px;
+  background-color: #ffe6e6;
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--clay-red);
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* Checkout Button - Touch optimized */
 .checkoutButton {
   width: 100%;

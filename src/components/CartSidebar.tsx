@@ -18,18 +18,31 @@ import { OrderSuccessToast } from './OrderSuccessToast';
 import { ProfileBadge } from './ProfileBadge';
 import styles from './CartSidebar.module.css';
 
+const MINIMUM_ORDER_VALUE = 99;
+
+interface ValidationErrors {
+  location?: string;
+  slot?: string;
+}
+
 export function CartSidebar() {
   const { cart, isLoading, usingFallback, isCartOpen, closeCart, clearCart } = useCart();
   const { user, isAuthenticated, requireAuth } = useAuth();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   
   // Check if cart has items
   const hasItems = cart.items.size > 0;
   
   // Format total amount
   const formattedTotal = `₹${cart.totalAmount.toFixed(2)}`;
+  
+  // Check if cart meets minimum order value
+  const meetsMinimumOrder = cart.totalAmount >= MINIMUM_ORDER_VALUE;
+  const remainingAmount = MINIMUM_ORDER_VALUE - cart.totalAmount;
   
   const handleCheckout = async () => {
     // Check if user is authenticated
@@ -44,19 +57,28 @@ export function CartSidebar() {
   };
 
   const processCheckout = async () => {
+    // Clear any previous checkout errors
+    setCheckoutError(null);
+    
     // Get the current user from auth context
     const currentUser = user;
     
     if (!currentUser) {
       console.error('No user found during checkout');
-      alert('Please log in to complete your order');
+      setCheckoutError('Please log in to complete your order');
       return;
     }
 
     if (!cart.selectedBlock || !cart.selectedSlot) {
-      alert('Please select a delivery location and time slot');
+      setValidationErrors({
+        location: !cart.selectedBlock ? 'Please select a delivery location' : undefined,
+        slot: !cart.selectedSlot ? 'Please select a delivery time slot' : undefined
+      });
       return;
     }
+    
+    // Clear validation errors if we get here
+    setValidationErrors({});
 
     setIsProcessingCheckout(true);
 
@@ -101,7 +123,7 @@ export function CartSidebar() {
       setSuccessOrderId(orderId);
     } catch (error) {
       console.error('Checkout failed:', error);
-      alert(error instanceof Error ? error.message : 'Failed to place order. Please try again.');
+      setCheckoutError(error instanceof Error ? error.message : 'Failed to place order. Please try again.');
     } finally {
       setIsProcessingCheckout(false);
     }
@@ -116,6 +138,14 @@ export function CartSidebar() {
   const handleLoginClose = () => {
     setShowLoginPopup(false);
     // User closed popup without logging in, do nothing
+  };
+
+  const clearLocationError = () => {
+    setValidationErrors(prev => ({ ...prev, location: undefined }));
+  };
+
+  const clearSlotError = () => {
+    setValidationErrors(prev => ({ ...prev, slot: undefined }));
   };
   
   return (
@@ -178,8 +208,14 @@ export function CartSidebar() {
             {hasItems && (
               <>
                 <div className={styles.cartSelectors}>
-                  <LocationSelector />
-                  <SlotSelector />
+                  <LocationSelector 
+                    error={validationErrors.location}
+                    onErrorClear={clearLocationError}
+                  />
+                  <SlotSelector 
+                    error={validationErrors.slot}
+                    onErrorClear={clearSlotError}
+                  />
                 </div>
                 
                 <div className={styles.cartFooter}>
@@ -188,10 +224,22 @@ export function CartSidebar() {
                     <span className={styles.totalAmount}>{formattedTotal}</span>
                   </div>
                   
+                  {!meetsMinimumOrder && hasItems && (
+                    <div className={styles.minimumOrderWarning}>
+                      ⚠️ Add ₹{remainingAmount.toFixed(2)} more to place order
+                    </div>
+                  )}
+                  
+                  {checkoutError && (
+                    <div className={styles.checkoutError}>
+                      {checkoutError}
+                    </div>
+                  )}
+                  
                   <button
                     className={styles.checkoutButton}
                     onClick={handleCheckout}
-                    disabled={!hasItems || isProcessingCheckout}
+                    disabled={!hasItems || isProcessingCheckout || !meetsMinimumOrder}
                     aria-label="Proceed to checkout"
                   >
                     {isProcessingCheckout ? 'Processing...' : 'Checkout'}

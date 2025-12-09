@@ -17,24 +17,27 @@ const TIME_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
  */
 export async function checkRateLimit(userId: string): Promise<NextResponse | null> {
   try {
+    // Bypass rate limiting in development when NEXT_PUBLIC_ENABLE_ALL_SLOTS is set
+    if (process.env.NEXT_PUBLIC_ENABLE_ALL_SLOTS === 'true') {
+      return null;
+    }
+
     // Calculate the timestamp for 24 hours ago
     const twentyFourHoursAgo = new Date(Date.now() - TIME_WINDOW_MS);
-    
+
     // Query the number of orders placed by this user in the last 24 hours
     const orderCount = await countOrdersByUserSince(userId, twentyFourHoursAgo);
-    
+
     // Check if the user has exceeded the rate limit
     if (orderCount >= MAX_ORDERS_PER_DAY) {
       return NextResponse.json(
         {
-          error: 'Rate limit exceeded',
-          message: `You have reached the maximum of ${MAX_ORDERS_PER_DAY} orders per 24 hours. Please try again later.`,
-          retryAfter: '24 hours',
+          error: 'You have reached the order limit for today',
         },
         { status: 429 }
       );
     }
-    
+
     // Rate limit not exceeded, allow the request to proceed
     return null;
   } catch (error) {
@@ -58,20 +61,20 @@ export function withRateLimit(
       // Extract user ID from request body
       const body = await req.json();
       const userId = body.userId;
-      
+
       if (!userId) {
         return NextResponse.json(
           { error: 'User ID is required' },
           { status: 400 }
         );
       }
-      
+
       // Check rate limit
       const rateLimitResponse = await checkRateLimit(userId);
       if (rateLimitResponse) {
         return rateLimitResponse;
       }
-      
+
       // Rate limit passed, call the original handler
       return handler(req, userId);
     } catch (error) {

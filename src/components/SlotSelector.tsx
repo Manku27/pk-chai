@@ -11,7 +11,12 @@ import { TimeSlot } from '@/types/menu';
 import { useMemo } from 'react';
 import styles from './SlotSelector.module.css';
 
-export function SlotSelector() {
+interface SlotSelectorProps {
+  error?: string;
+  onErrorClear?: () => void;
+}
+
+export function SlotSelector({ error, onErrorClear }: SlotSelectorProps = {}) {
   const { cart, setSlot } = useCart();
 
   // Generate available slots based on current time
@@ -23,6 +28,10 @@ export function SlotSelector() {
     const value = event.target.value;
     if (value) {
       setSlot(value);
+      // Clear error when user makes a selection
+      if (onErrorClear) {
+        onErrorClear();
+      }
     }
   };
 
@@ -33,10 +42,12 @@ export function SlotSelector() {
       </label>
       <select
         id="delivery-slot"
-        className={styles.select}
+        className={`${styles.select} ${error ? styles.selectError : ''}`}
         value={cart.selectedSlot || ''}
         onChange={handleSlotChange}
         aria-label="Select delivery time slot"
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={error ? 'slot-error' : undefined}
       >
         <option value="" disabled>
           Select time slot
@@ -52,6 +63,11 @@ export function SlotSelector() {
           </option>
         ))}
       </select>
+      {error && (
+        <div id="slot-error" className={styles.errorMessage} role="alert">
+          {error}
+        </div>
+      )}
     </div>
   );
 }
