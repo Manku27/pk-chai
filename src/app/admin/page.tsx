@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './page.module.css';
 import { getCurrentWorkingDay, dateInputToWorkingDay, getWorkingDayRange, workingDayToDateInput } from '@/utils/workingDay';
 import { AdminProtection } from '@/components/AdminProtection';
@@ -69,16 +69,21 @@ export default function AdminDashboard() {
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [statusUpdateError, setStatusUpdateError] = useState<{ orderId: string; message: string } | null>(null);
 
+  // For polling during business hours (10pm-5am)
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
   // Helper function to get headers with user ID
   const getAuthHeaders = () => {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
-    
+
     if (user?.id) {
       headers['x-user-id'] = user.id;
     }
-    
+
     return headers;
   };
 
@@ -86,7 +91,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const now = new Date();
     const hour = now.getHours();
-    
+
     // For Orders tab, default to "today's" working day
     // - If before 5 AM: use yesterday (the working day that's currently ongoing)
     // - If 5 AM or later: use today (the working day that will start tonight)
@@ -99,28 +104,84 @@ export default function AdminDashboard() {
       // Use today's working day (starts tonight at 11 PM)
       workingDayDate = new Date(now);
     }
-    
+
     const dateInput = workingDayToDateInput(workingDayDate);
     const range = getWorkingDayRange(workingDayDate);
     setOrdersWorkingDayDate(dateInput);
     setOrdersWorkingDayLabel(range.label);
   }, []);
 
+  // Setup polling during business hours (10pm-5am)
+  useEffect(() => {
+    const setupPolling = () => {
+      const now = new Date();
+      const hour = now.getHours();
+
+      // Check if we're in business hours (10pm-5am)
+      const isBusinessHours = hour >= 22 || hour < 5;
+
+      if (isBusinessHours && activeTab === 'overview' && user?.id) {
+        // Clear any existing interval
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+        }
+
+        // Set up polling every 30 seconds during business hours
+        const interval = setInterval(() => {
+          fetchOverviewData();
+        }, 30000);
+
+        pollingIntervalRef.current = interval;
+        setIsPolling(true);
+      } else {
+        // Clear polling if not in business hours or not on overview tab
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+        setIsPolling(false);
+      }
+    };
+
+    setupPolling();
+
+    // Check every minute if we need to start/stop polling
+    const hourlyCheck = setInterval(setupPolling, 60000);
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      clearInterval(hourlyCheck);
+    };
+  }, [activeTab, user?.id]);
+
   // Fetch overview data
   useEffect(() => {
-    if (activeTab === 'overview') {
+    if (activeTab === 'overview' && user?.id) {
       fetchOverviewData();
     }
-  }, [activeTab]);
+  }, [activeTab, user?.id]);
+
+  // Initial data fetch when user becomes available
+  useEffect(() => {
+    if (user?.id && activeTab === 'overview') {
+      // Small delay to ensure auth is fully settled
+      const timer = setTimeout(() => {
+        fetchOverviewData();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [user?.id]);
 
   // Fetch orders by status and working day
   useEffect(() => {
-    if (activeTab === 'orders' && ordersWorkingDayDate) {
+    if (activeTab === 'orders' && ordersWorkingDayDate && user?.id) {
       fetchOrdersByStatus();
     }
-  }, [activeTab, selectedStatus, ordersWorkingDayDate]);
+  }, [activeTab, selectedStatus, ordersWorkingDayDate, user?.id]);
 
-  const fetchOverviewData = async () => {
+  const fetchOverviewData = async (retryCount = 0) => {
     if (!user?.id) {
       console.error('User not authenticated');
       return;
@@ -133,39 +194,64 @@ export default function AdminDashboard() {
 
       const headers = getAuthHeaders();
 
-      // Fetch total revenue (all-time)
-      const totalRevenueRes = await fetch('/api/admin/analytics?type=total-revenue', {
-        headers,
-      });
-      const totalRevenueData = await totalRevenueRes.json();
-      setTotalRevenue(totalRevenueData.revenue);
+      // Fetch all data in parallel with timeout
+      const fetchWithTimeout = (url: string, options: RequestInit, timeout = 10000) => {
+        return Promise.race([
+          fetch(url, options),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), timeout)
+          )
+        ]);
+      };
 
-      // Fetch working day revenue
-      const wdRevenueRes = await fetch(
-        `/api/admin/analytics?type=working-day-revenue&workingDayStart=${currentWD.start.toISOString()}&workingDayEnd=${currentWD.end.toISOString()}`,
-        { headers }
-      );
-      const wdRevenueData = await wdRevenueRes.json();
-      setWorkingDayRevenue(wdRevenueData.revenue);
+      const [totalRevenueRes, wdRevenueRes, statusCountsRes, slotBlockRes] = await Promise.all([
+        fetchWithTimeout('/api/admin/analytics?type=total-revenue', { headers }),
+        fetchWithTimeout(
+          `/api/admin/analytics?type=working-day-revenue&workingDayStart=${currentWD.start.toISOString()}&workingDayEnd=${currentWD.end.toISOString()}`,
+          { headers }
+        ),
+        fetchWithTimeout(
+          `/api/admin/analytics?type=working-day-status-counts&workingDayStart=${currentWD.start.toISOString()}&workingDayEnd=${currentWD.end.toISOString()}`,
+          { headers }
+        ),
+        fetchWithTimeout(
+          `/api/admin/analytics?type=working-day-slot-block-groups&workingDayStart=${currentWD.start.toISOString()}&workingDayEnd=${currentWD.end.toISOString()}`,
+          { headers }
+        )
+      ]);
 
-      // Fetch status counts for working day
-      const statusCountsRes = await fetch(
-        `/api/admin/analytics?type=working-day-status-counts&workingDayStart=${currentWD.start.toISOString()}&workingDayEnd=${currentWD.end.toISOString()}`,
-        { headers }
-      );
-      const statusCountsData = await statusCountsRes.json();
-      setStatusCounts(statusCountsData.counts);
+      // Check if all responses are ok
+      if (!totalRevenueRes.ok || !wdRevenueRes.ok || !statusCountsRes.ok || !slotBlockRes.ok) {
+        throw new Error('One or more API requests failed');
+      }
 
-      // Fetch slot-block groups for working day
-      const slotBlockRes = await fetch(
-        `/api/admin/analytics?type=working-day-slot-block-groups&workingDayStart=${currentWD.start.toISOString()}&workingDayEnd=${currentWD.end.toISOString()}`,
-        { headers }
-      );
-      const slotBlockData = await slotBlockRes.json();
+      const [totalRevenueData, wdRevenueData, statusCountsData, slotBlockData] = await Promise.all([
+        totalRevenueRes.json(),
+        wdRevenueRes.json(),
+        statusCountsRes.json(),
+        slotBlockRes.json()
+      ]);
+
+      setTotalRevenue(totalRevenueData.revenue || 0);
+      setWorkingDayRevenue(wdRevenueData.revenue || 0);
+      setStatusCounts(statusCountsData.counts || []);
       setSlotBlockGroups(slotBlockData.groups || []);
+      setLastRefresh(new Date());
     } catch (error) {
       console.error('Failed to fetch overview data:', error);
-      // Set empty arrays on error to prevent undefined issues
+
+      // Retry logic - retry up to 2 times with exponential backoff
+      if (retryCount < 2) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
+        setTimeout(() => {
+          fetchOverviewData(retryCount + 1);
+        }, delay);
+        return;
+      }
+
+      // Set empty/default values on final failure
+      setTotalRevenue(0);
+      setWorkingDayRevenue(0);
       setSlotBlockGroups([]);
       setStatusCounts([]);
     } finally {
@@ -202,7 +288,7 @@ export default function AdminDashboard() {
 
   const toggleBlockExpansion = (slotTime: string, hostelBlock: string) => {
     const blockKey = `${slotTime}-${hostelBlock}`;
-    
+
     const newExpanded = new Set(expandedBlocks);
     if (expandedBlocks.has(blockKey)) {
       newExpanded.delete(blockKey);
@@ -240,7 +326,7 @@ export default function AdminDashboard() {
 
       // Refresh overview data to reflect changes in the detailed orders
       await fetchOverviewData();
-      
+
       // Clear error state after successful update
       setStatusUpdateError(null);
     } catch (error) {
@@ -294,265 +380,298 @@ export default function AdminDashboard() {
       <div className={styles.container}>
         <header className={styles.header}>
           <h1>Admin Dashboard</h1>
-          <div className={styles.tabs}>
-            <button
-              className={activeTab === 'overview' ? styles.activeTab : ''}
-              onClick={() => setActiveTab('overview')}
-            >
-              Overview
-            </button>
-            <button
-              className={activeTab === 'orders' ? styles.activeTab : ''}
-              onClick={() => setActiveTab('orders')}
-            >
-              Orders
-            </button>
-          </div>
-        </header>
-
-      {loading && <div className={styles.loading}>Loading...</div>}
-
-      {activeTab === 'overview' && (
-        <div className={styles.overview}>
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <h3>Total Revenue</h3>
-              <p className={styles.statValue}>{formatCurrency(totalRevenue)}</p>
+          <div className={styles.headerControls}>
+            <div className={styles.tabs}>
+              <button
+                className={activeTab === 'overview' ? styles.activeTab : ''}
+                onClick={() => {
+                  setActiveTab('overview');
+                  // Force refresh when switching to overview
+                  if (activeTab !== 'overview' && user?.id) {
+                    setTimeout(() => fetchOverviewData(), 100);
+                  }
+                }}
+              >
+                Overview
+              </button>
+              <button
+                className={activeTab === 'orders' ? styles.activeTab : ''}
+                onClick={() => setActiveTab('orders')}
+              >
+                Orders
+              </button>
             </div>
-            <div className={styles.statCard}>
-              <h3>Working Day Revenue</h3>
-              <p className={styles.statValue}>{formatCurrency(workingDayRevenue)}</p>
-              {workingDayLabel && (
-                <p className={styles.workingDayLabel}>{workingDayLabel}</p>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h2>Order Status Counts</h2>
-            <div className={styles.statusGrid}>
-              {statusCounts.map((item) => (
-                <div key={item.status} className={styles.statusCard}>
-                  <span className={styles.statusLabel}>{item.status}</span>
-                  <span className={styles.statusCount}>{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h2>Orders by Slot & Block (Current Working Day)</h2>
-            {slotGroups.length === 0 ? (
-              <div className={styles.emptyState}>No orders for current working day</div>
-            ) : (
-              <div className={styles.slotGroupsContainer}>
-                {slotGroups.map((slotGroup, slotIndex) => (
-                  <div key={slotIndex} className={styles.slotGroup}>
-                    <div className={styles.slotHeader}>
-                      <div className={styles.slotTime}>
-                        <span className={styles.slotTimeLabel}>Slot:</span>
-                        <span className={styles.slotTimeValue}>{formatDateTime(slotGroup.slotTime)}</span>
-                      </div>
-                      <div className={styles.slotSummary}>
-                        <span className={styles.slotStat}>
-                          <strong>{slotGroup.totalOrders}</strong> orders
-                        </span>
-                        <span className={styles.slotStat}>
-                          <strong>{formatCurrency(slotGroup.totalAmount)}</strong>
-                        </span>
-                      </div>
-                    </div>
-                    <div className={styles.blocksGrid}>
-                      {slotGroup.blocks.map((block, blockIndex) => {
-                        const blockKey = `${slotGroup.slotTime}-${block.hostelBlock}`;
-                        const isExpanded = expandedBlocks.has(blockKey);
-                        const blockDetails = block.detailedOrders;
-
-                        return (
-                          <div key={blockIndex} className={styles.blockCard}>
-                            <div 
-                              className={styles.blockHeader}
-                              onClick={() => toggleBlockExpansion(slotGroup.slotTime, block.hostelBlock)}
-                            >
-                              <div className={styles.blockName}>{block.hostelBlock}</div>
-                              <div className={styles.blockStats}>
-                                <div className={styles.blockStat}>
-                                  <span className={styles.blockStatLabel}>Orders:</span>
-                                  <span className={styles.blockStatValue}>{block.count}</span>
-                                </div>
-                                <div className={styles.blockStat}>
-                                  <span className={styles.blockStatLabel}>Amount:</span>
-                                  <span className={styles.blockStatValue}>{formatCurrency(block.amount)}</span>
-                                </div>
-                              </div>
-                              <button className={styles.expandButton} aria-label={isExpanded ? 'Collapse' : 'Expand'}>
-                                {isExpanded ? '▼' : '▶'}
-                              </button>
-                            </div>
-
-                            {isExpanded && (
-                              <div className={styles.blockDetails}>
-                                {blockDetails && blockDetails.length > 0 ? (
-                                  <div className={styles.ordersList}>
-                                    {blockDetails.map((order) => (
-                                      <div key={order.id} className={styles.orderDetail}>
-                                        <div className={styles.orderHeader}>
-                                          <span className={styles.orderId}>
-                                            Order: {order.id.substring(0, 8)}...
-                                          </span>
-                                          <span className={styles.customerName}>
-                                            <span>{order.userName}</span>
-                                            <span className={styles.orderAmount}>
-                                              {formatCurrency(order.totalAmount)}
-                                            </span>
-                                          </span>
-                                          <a 
-                                            href={`tel:${order.userPhone}`} 
-                                            className={styles.customerPhone}
-                                          >
-                                            {order.userPhone}
-                                          </a>
-                                        </div>
-                                        <div className={styles.orderStatusBadgeContainer}>
-                                          <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()]}`}>
-                                            {order.status}
-                                          </span>
-                                        </div>
-                                        <div className={styles.orderItems}>
-                                          {order.items.map((item, idx) => (
-                                            <div key={idx} className={styles.orderItem}>
-                                              <span className={styles.itemQuantity}>{item.quantity}x</span>
-                                              <span className={styles.itemName}>{item.itemName}</span>
-                                              <span className={styles.itemPrice}>
-                                                {formatCurrency(item.priceAtOrder)}
-                                              </span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                        {(order.status === 'ACCEPTED' || order.status === 'ACKNOWLEDGED') && (
-                                          <div className={styles.orderActions}>
-                                            <button
-                                              className={styles.actionButton}
-                                              onClick={() => handleUpdateOrderStatus(order.id, 'DELIVERED')}
-                                              disabled={updatingOrderId === order.id}
-                                            >
-                                              {updatingOrderId === order.id ? (
-                                                <span className={styles.buttonSpinner}>⏳</span>
-                                              ) : (
-                                                'Fulfill'
-                                              )}
-                                            </button>
-                                            <button
-                                              className={`${styles.actionButton} ${styles.rejectButton}`}
-                                              onClick={() => handleUpdateOrderStatus(order.id, 'REJECTED')}
-                                              disabled={updatingOrderId === order.id}
-                                            >
-                                              {updatingOrderId === order.id ? (
-                                                <span className={styles.buttonSpinner}>⏳</span>
-                                              ) : (
-                                                'Reject'
-                                              )}
-                                            </button>
-                                          </div>
-                                        )}
-                                        {statusUpdateError && statusUpdateError.orderId === order.id && (
-                                          <div className={styles.errorMessage}>
-                                            {statusUpdateError.message}
-                                          </div>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className={styles.emptyDetails}>No orders found</div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+            {activeTab === 'overview' && (
+              <div className={styles.headerActions}>
+                <button
+                  className={styles.refreshButton}
+                  onClick={() => fetchOverviewData()}
+                  disabled={loading}
+                >
+                  {loading ? '⏳' : '🔄'} Refresh
+                </button>
+                {isPolling && (
+                  <div className={styles.pollingIndicator}>
+                    🔴 Live (10pm-5am)
                   </div>
-                ))}
+                )}
+                {lastRefresh && (
+                  <div className={styles.lastRefresh}>
+                    Last: {lastRefresh.toLocaleTimeString('en-IN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        </div>
-      )}
+        </header>
 
-      {activeTab === 'orders' && (
-        <div className={styles.ordersView}>
-          <div className={styles.filters}>
-            <div className={styles.filterGroup}>
-              <label htmlFor="workingDayDate">Working Day:</label>
-              <input
-                type="date"
-                id="workingDayDate"
-                value={ordersWorkingDayDate}
-                onChange={(e) => setOrdersWorkingDayDate(e.target.value)}
-              />
-            </div>
-            <div className={styles.filterGroup}>
-              <label htmlFor="status">Status:</label>
-              <select
-                id="status"
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
-              >
-                <option value="ACCEPTED">ACCEPTED</option>
-                <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
-                <option value="DELIVERED">DELIVERED</option>
-                <option value="REJECTED">REJECTED</option>
-              </select>
-            </div>
-          </div>
+        {loading && <div className={styles.loading}>Loading...</div>}
 
-          {ordersWorkingDayLabel && (
-            <div className={styles.workingDayInfo}>
-              Working Day: {ordersWorkingDayLabel}
-            </div>
-          )}
-
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Hostel Block</th>
-                  <th>Slot Time</th>
-                  <th>Total Amount</th>
-                  <th>Status</th>
-                  <th>Created At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders && orders.length > 0 ? (
-                  orders.map((order) => (
-                    <tr key={order.id}>
-                      <td>{order.id.substring(0, 8)}...</td>
-                      <td>{order.targetHostelBlock}</td>
-                      <td>{formatDateTime(order.slotTime)}</td>
-                      <td>{formatCurrency(order.totalAmount)}</td>
-                      <td>
-                        <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()]}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td>{formatDateTime(order.createdAt)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className={styles.emptyState}>
-                      No orders with status {selectedStatus}
-                    </td>
-                  </tr>
+        {activeTab === 'overview' && (
+          <div className={styles.overview}>
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <h3>Total Revenue</h3>
+                <p className={styles.statValue}>{formatCurrency(totalRevenue)}</p>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Working Day Revenue</h3>
+                <p className={styles.statValue}>{formatCurrency(workingDayRevenue)}</p>
+                {workingDayLabel && (
+                  <p className={styles.workingDayLabel}>{workingDayLabel}</p>
                 )}
-              </tbody>
-            </table>
+              </div>
+            </div>
+
+            <div className={styles.section}>
+              <h2>Order Status Counts</h2>
+              <div className={styles.statusGrid}>
+                {statusCounts.map((item) => (
+                  <div key={item.status} className={styles.statusCard}>
+                    <span className={styles.statusLabel}>{item.status}</span>
+                    <span className={styles.statusCount}>{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.section}>
+              <h2>Orders by Slot & Block (Current Working Day)</h2>
+              {slotGroups.length === 0 ? (
+                <div className={styles.emptyState}>No orders for current working day</div>
+              ) : (
+                <div className={styles.slotGroupsContainer}>
+                  {slotGroups.map((slotGroup, slotIndex) => (
+                    <div key={slotIndex} className={styles.slotGroup}>
+                      <div className={styles.slotHeader}>
+                        <div className={styles.slotTime}>
+                          <span className={styles.slotTimeLabel}>Slot:</span>
+                          <span className={styles.slotTimeValue}>{formatDateTime(slotGroup.slotTime)}</span>
+                        </div>
+                        <div className={styles.slotSummary}>
+                          <span className={styles.slotStat}>
+                            <strong>{slotGroup.totalOrders}</strong> orders
+                          </span>
+                          <span className={styles.slotStat}>
+                            <strong>{formatCurrency(slotGroup.totalAmount)}</strong>
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.blocksGrid}>
+                        {slotGroup.blocks.map((block, blockIndex) => {
+                          const blockKey = `${slotGroup.slotTime}-${block.hostelBlock}`;
+                          const isExpanded = expandedBlocks.has(blockKey);
+                          const blockDetails = block.detailedOrders;
+
+                          return (
+                            <div key={blockIndex} className={styles.blockCard}>
+                              <div
+                                className={styles.blockHeader}
+                                onClick={() => toggleBlockExpansion(slotGroup.slotTime, block.hostelBlock)}
+                              >
+                                <div className={styles.blockName}>{block.hostelBlock}</div>
+                                <div className={styles.blockStats}>
+                                  <div className={styles.blockStat}>
+                                    <span className={styles.blockStatLabel}>Orders:</span>
+                                    <span className={styles.blockStatValue}>{block.count}</span>
+                                  </div>
+                                  <div className={styles.blockStat}>
+                                    <span className={styles.blockStatLabel}>Amount:</span>
+                                    <span className={styles.blockStatValue}>{formatCurrency(block.amount)}</span>
+                                  </div>
+                                </div>
+                                <button className={styles.expandButton} aria-label={isExpanded ? 'Collapse' : 'Expand'}>
+                                  {isExpanded ? '▼' : '▶'}
+                                </button>
+                              </div>
+
+                              {isExpanded && (
+                                <div className={styles.blockDetails}>
+                                  {blockDetails && blockDetails.length > 0 ? (
+                                    <div className={styles.ordersList}>
+                                      {blockDetails.map((order) => (
+                                        <div key={order.id} className={styles.orderDetail}>
+                                          <div className={styles.orderHeader}>
+                                            <span className={styles.orderId}>
+                                              Order: {order.id.substring(0, 8)}...
+                                            </span>
+                                            <span className={styles.customerName}>
+                                              <span>{order.userName}</span>
+                                              <span className={styles.orderAmount}>
+                                                {formatCurrency(order.totalAmount)}
+                                              </span>
+                                            </span>
+                                            <a
+                                              href={`tel:${order.userPhone}`}
+                                              className={styles.customerPhone}
+                                            >
+                                              {order.userPhone}
+                                            </a>
+                                          </div>
+                                          <div className={styles.orderStatusBadgeContainer}>
+                                            <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()]}`}>
+                                              {order.status}
+                                            </span>
+                                          </div>
+                                          <div className={styles.orderItems}>
+                                            {order.items.map((item, idx) => (
+                                              <div key={idx} className={styles.orderItem}>
+                                                <span className={styles.itemQuantity}>{item.quantity}x</span>
+                                                <span className={styles.itemName}>{item.itemName}</span>
+                                                <span className={styles.itemPrice}>
+                                                  {formatCurrency(item.priceAtOrder)}
+                                                </span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                          {(order.status === 'ACCEPTED' || order.status === 'ACKNOWLEDGED') && (
+                                            <div className={styles.orderActions}>
+                                              <button
+                                                className={styles.actionButton}
+                                                onClick={() => handleUpdateOrderStatus(order.id, 'DELIVERED')}
+                                                disabled={updatingOrderId === order.id}
+                                              >
+                                                {updatingOrderId === order.id ? (
+                                                  <span className={styles.buttonSpinner}>⏳</span>
+                                                ) : (
+                                                  'Fulfill'
+                                                )}
+                                              </button>
+                                              <button
+                                                className={`${styles.actionButton} ${styles.rejectButton}`}
+                                                onClick={() => handleUpdateOrderStatus(order.id, 'REJECTED')}
+                                                disabled={updatingOrderId === order.id}
+                                              >
+                                                {updatingOrderId === order.id ? (
+                                                  <span className={styles.buttonSpinner}>⏳</span>
+                                                ) : (
+                                                  'Reject'
+                                                )}
+                                              </button>
+                                            </div>
+                                          )}
+                                          {statusUpdateError && statusUpdateError.orderId === order.id && (
+                                            <div className={styles.errorMessage}>
+                                              {statusUpdateError.message}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className={styles.emptyDetails}>No orders found</div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {activeTab === 'orders' && (
+          <div className={styles.ordersView}>
+            <div className={styles.filters}>
+              <div className={styles.filterGroup}>
+                <label htmlFor="workingDayDate">Working Day:</label>
+                <input
+                  type="date"
+                  id="workingDayDate"
+                  value={ordersWorkingDayDate}
+                  onChange={(e) => setOrdersWorkingDayDate(e.target.value)}
+                />
+              </div>
+              <div className={styles.filterGroup}>
+                <label htmlFor="status">Status:</label>
+                <select
+                  id="status"
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
+                >
+                  <option value="ACCEPTED">ACCEPTED</option>
+                  <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
+                  <option value="DELIVERED">DELIVERED</option>
+                  <option value="REJECTED">REJECTED</option>
+                </select>
+              </div>
+            </div>
+
+            {ordersWorkingDayLabel && (
+              <div className={styles.workingDayInfo}>
+                Working Day: {ordersWorkingDayLabel}
+              </div>
+            )}
+
+            <div className={styles.tableContainer}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Hostel Block</th>
+                    <th>Slot Time</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders && orders.length > 0 ? (
+                    orders.map((order) => (
+                      <tr key={order.id}>
+                        <td>{order.id.substring(0, 8)}...</td>
+                        <td>{order.targetHostelBlock}</td>
+                        <td>{formatDateTime(order.slotTime)}</td>
+                        <td>{formatCurrency(order.totalAmount)}</td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()]}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td>{formatDateTime(order.createdAt)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className={styles.emptyState}>
+                        No orders with status {selectedStatus}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </AdminProtection>
   );

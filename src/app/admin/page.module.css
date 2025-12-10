@@ -31,10 +31,88 @@
   letter-spacing: -0.3px;
 }
 
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .tabs {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.refreshButton {
+  padding: 0.75rem 1.5rem;
+  background: var(--pk-cream);
+  border: 3px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--pk-ink);
+  box-shadow: 3px 3px 0px var(--pk-ink);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refreshButton:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--pk-ink);
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pollingIndicator {
+  padding: 0.5rem 1rem;
+  background: var(--alert-red);
+  color: white;
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  animation: pulse 2s infinite;
+}
+
+.lastRefresh {
+  padding: 0.5rem 1rem;
+  background: var(--pk-foam);
+  border: 2px solid var(--pk-ink);
+  border-radius: var(--radius-std);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--pk-ink);
+  opacity: 0.8;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .tabs button {
