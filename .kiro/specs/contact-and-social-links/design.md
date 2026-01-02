@@ -21,6 +21,7 @@ AdminDashboard Component (existing)
 ### Design System Integration
 
 The ContactSection will follow the existing neo-brutalist design patterns:
+
 - Hard shadows (var(--shadow-hard))
 - Bold borders (3px solid var(--pk-ink))
 - Standard border radius (var(--radius-std))
@@ -35,18 +36,19 @@ The ContactSection will follow the existing neo-brutalist design patterns:
 **Props**: None (static content)
 
 **Structure**:
+
 ```typescript
 export function ContactSection() {
   return (
     <section className={styles.contactSection}>
       <h2>Need Help?</h2>
       <div className={styles.contactLinks}>
-        <a href="tel:9674778549" className={styles.phoneLink}>
-          📞 Call: 9674778549
+        <a href="tel:7063126578" className={styles.phoneLink}>
+          📞 Call: 7063126578
         </a>
-        <a 
-          href="https://www.instagram.com/p_k_chai" 
-          target="_blank" 
+        <a
+          href="https://www.instagram.com/p_k_chai"
+          target="_blank"
           rel="noopener noreferrer"
           className={styles.instagramLink}
         >
@@ -59,6 +61,7 @@ export function ContactSection() {
 ```
 
 **Styling** (`src/components/ContactSection.module.css`):
+
 - Section container with top margin/padding for separation
 - Card-like appearance matching existing components
 - Links styled as interactive buttons with hover states
@@ -70,6 +73,7 @@ export function ContactSection() {
 **Location**: `src/app/admin/page.tsx` (modifications)
 
 **Changes**:
+
 - Wrap phone number displays in `<a href="tel:...">` tags
 - Maintain existing styling while adding link functionality
 - Apply to both:
@@ -77,6 +81,7 @@ export function ContactSection() {
   - Any other phone number displays in the orders table
 
 **Implementation Pattern**:
+
 ```typescript
 // Before:
 <span className={styles.customerPhone}>{order.userPhone}</span>
@@ -88,6 +93,7 @@ export function ContactSection() {
 ```
 
 **CSS Updates** (`src/app/admin/page.module.css`):
+
 ```css
 .customerPhone {
   /* existing styles */
@@ -103,7 +109,8 @@ export function ContactSection() {
 ## Data Models
 
 No new data models required. Uses existing static data:
-- Phone: `9674778549`
+
+- Phone: `7063126578`
 - Instagram: `https://www.instagram.com/p_k_chai`
 
 ## Integration Points
@@ -128,6 +135,7 @@ return (
 ### Admin Dashboard Integration
 
 Phone numbers appear in two locations:
+
 1. **Overview Tab - Block Details**: Customer phone in expanded order details
 2. **Orders Tab - Table View**: Could be added as a column if user data is fetched
 
@@ -136,18 +144,22 @@ The modification will wrap existing phone number text with tel: links without ch
 ## Error Handling
 
 ### Contact Section
+
 - Links use standard HTML anchor behavior
 - Instagram link opens in new tab with `rel="noopener noreferrer"` for security
 - No JavaScript required, so no error states needed
 
 ### Admin Phone Links
+
 - Tel links gracefully degrade on devices without phone capability
 - No error handling needed as it's a standard browser feature
 
 ## Testing Strategy
 
 ### Manual Testing
+
 1. **Menu Page Contact Section**:
+
    - Verify section appears at bottom of menu
    - Click phone link on mobile device → should open dialer
    - Click Instagram link → should open in new tab
@@ -160,12 +172,14 @@ The modification will wrap existing phone number text with tel: links without ch
    - Test on both Overview and Orders tabs
 
 ### Accessibility Testing
+
 - Verify links have proper focus states
 - Test keyboard navigation (Tab key)
 - Verify screen reader announces links correctly
 - Ensure sufficient color contrast for links
 
 ### Browser Compatibility
+
 - Test tel: links on iOS Safari, Android Chrome
 - Verify Instagram link opens correctly in all major browsers
 - Test on desktop browsers (Chrome, Firefox, Safari, Edge)
@@ -179,7 +193,7 @@ The modification will wrap existing phone number text with tel: links without ch
 │  Need Help?                         │
 │                                     │
 │  ┌───────────────────────────────┐ │
-│  │ 📞 Call: 9674778549           │ │
+│  │ 📞 Call: 7063126578           │ │
 │  └───────────────────────────────┘ │
 │                                     │
 │  ┌───────────────────────────────┐ │
@@ -189,6 +203,7 @@ The modification will wrap existing phone number text with tel: links without ch
 ```
 
 ### Styling Specifications
+
 - Background: var(--pk-foam) or white card
 - Border: 3px solid var(--pk-ink)
 - Shadow: var(--shadow-hard)

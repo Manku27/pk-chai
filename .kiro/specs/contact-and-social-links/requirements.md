@@ -20,7 +20,7 @@ This feature adds contact information and social media links to the customer-fac
 #### Acceptance Criteria
 
 1. THE Menu Page SHALL display a contact section at the end of the menu content
-2. THE Contact Section SHALL display the phone number "9674778549" as a clickable telephone link
+2. THE Contact Section SHALL display the phone number "7063126578" as a clickable telephone link
 3. THE Contact Section SHALL display an Instagram link to "https://www.instagram.com/p_k_chai"
 4. WHEN a customer clicks the phone number, THE Menu Page SHALL initiate a phone call using the device's dialer
 5. WHEN a customer clicks the Instagram link, THE Menu Page SHALL open the Instagram profile in a new browser tab

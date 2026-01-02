@@ -1,14 +1,16 @@
 # Implementation Plan
 
 - [x] 1. Create ContactSection component for menu page
+
   - Create `src/components/ContactSection.tsx` with phone and Instagram links
   - Create `src/components/ContactSection.module.css` with neo-brutalist styling
-  - Use tel: link for phone number (9674778549)
-  - Use Instagram link (https://www.instagram.com/p_k_chai) with target="_blank" and rel="noopener noreferrer"
+  - Use tel: link for phone number (7063126578)
+  - Use Instagram link (https://www.instagram.com/p_k_chai) with target="\_blank" and rel="noopener noreferrer"
   - Include emoji icons (📞 and 📷) for visual indicators
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
 - [x] 2. Integrate ContactSection into MenuList component
+
   - Import ContactSection in `src/components/MenuList.tsx`
   - Add ContactSection after all CategorySection components
   - Verify it appears at the bottom of the menu
